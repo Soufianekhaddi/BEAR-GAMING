@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BEAR GAMING</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            background-image: url('light.jpg');
+            background-size: cover;
+            background-position: center;
+            backdrop-filter: blur(10px); 
+            -webkit-backdrop-filter: blur(10px); /* Compatibilité Safari */
+            transition: background 0.5s ease; /* Animation de transition pour le fond */
+        }
+
+        .navbar {
+            background-color: rgba(255, 255, 255, 0.2); /* Couleur de fond avec transparence maximale */
+            backdrop-filter: blur(10px); /* Ajout du flou */
+            -webkit-backdrop-filter: blur(10px); /* Compatibilité Safari */
+        }
+
+        .navbar-brand, .nav-link {
+            color: white !important; /* Texte en blanc */
+        }
+
+        .card {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.8); /* Couleur de fond avec transparence */
+            transition: transform 0.3s ease; /* Animation de transition pour la carte */
+        }
+
+        .card:hover {
+            transform: scale(1.05); /* Effet de zoom sur survol */
+        }
+
+        .card-title {
+            margin-bottom: 20px;
+        }
+
+        .btn-block {
+            margin-top: 15px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            transform: translateY(-20px);
+        }
+
+        .notification.error {
+            background-color: #dc3545;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .error-message {
+            color: red;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Barre de menu -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <a class="navbar-brand" href="#">Mon Site</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="client.html">Accueil</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="register.html">Créer un compte</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card mt-5">
+                    <div class="card-body">
+                        <h3 class="card-title text-center">Connexion</h3>
+                        <div id="errorMessage" class="notification error">Nom d'utilisateur ou mot de passe incorrect</div>
+                        <div id="successMessage" class="notification">Connexion réussie!</div>
+                        <form id="loginForm">
+                            <div class="form-group">
+                                <label for="username">Nom d'utilisateur</label>
+                                <input type="text" class="form-control" id="username" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Mot de passe</label>
+                                <input type="password" class="form-control" id="password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Se connecter</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+
+            // Page de connexion
+            $('#loginForm').submit(function(event) {
+                event.preventDefault();
+                const username = $('#username').val();
+                const password = $('#password').val();
+
+                const user = users.find(user => user.username === username && user.password === password);
+                if (user) {
+                    showNotification('successMessage');
+                    setTimeout(() => {
+                        if (username.toLowerCase().includes('admin')) {
+                            window.location.href = 'admin.html';
+                        } else {
+                            window.location.href = 'client.html';
+                        }
+                    }, 2000);
+                } else {
+                    showNotification('errorMessage');
+                }
+            });
+
+            // Fonction pour afficher les notifications
+            function showNotification(id) {
+                const notification = $(`#${id}`);
+                notification.addClass('show');
+                setTimeout(() => {
+                    notification.removeClass('show');
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>

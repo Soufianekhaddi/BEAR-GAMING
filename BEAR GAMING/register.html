@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BEAR GAMING</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            background-image: url('light.jpg');
+            background-size: cover;
+            background-position: center;
+            transition: background 0.5s ease; 
+        }
+        .card {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.9); 
+            transition: transform 0.3s ease; 
+        }
+        .card:hover {
+            transform: scale(1.05); 
+        }
+        .card-title {
+            margin-bottom: 20px;
+        }
+        .btn-block {
+            margin-top: 15px;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            transform: translateY(-20px);
+        }
+        .notification.error {
+            background-color: #dc3545;
+        }
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .error-message {
+            color: red;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card mt-5">
+                    <div class="card-body">
+                        <h3 class="card-title text-center">Inscription</h3>
+                        <div id="errorMessage" class="notification error">L'utilisateur existe déjà</div>
+                        <div id="successMessage" class="notification">Inscription réussie!</div>
+                        <form id="registerForm">
+                            <div class="form-group">
+                                <label for="reg-username">Nom d'utilisateur</label>
+                                <input type="text" class="form-control" id="reg-username" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="reg-password">Mot de passe</label>
+                                <input type="password" class="form-control" id="reg-password" required>
+                            </div>
+                            <button type="submit" class="btn btn-success btn-block">S'inscrire</button>
+                        </form>
+                        <button id="backToLoginBtn" class="btn btn-secondary btn-block mt-3">Retour à la connexion</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+
+           
+            $('#backToLoginBtn').click(function() {
+                window.location.href = 'login.html';
+            });
+
+            
+            $('#reg-username').on('input', function() {
+                const username = $(this).val();
+                if (users.find(user => user.username === username)) {
+                    showNotification('errorMessage');
+                } else {
+                    hideNotification('errorMessage');
+                }
+            });
+
+            
+            $('#registerForm').submit(function(event) {
+                event.preventDefault();
+                const username = $('#reg-username').val();
+                const password = $('#reg-password').val();
+
+                if (users.find(user => user.username === username)) {
+                    showNotification('errorMessage');
+                } else {
+                    users.push({ username, password });
+                    localStorage.setItem('users', JSON.stringify(users));
+                    showNotification('successMessage');
+                    setTimeout(() => {
+                        hideNotification('successMessage');
+                        window.location.href = 'login.html';
+                    }, 2000);
+                }
+            });
+
+           
+            function showNotification(id) {
+                const notification = $(`#${id}`);
+                notification.addClass('show');
+            }
+
+           
+            function hideNotification(id) {
+                const notification = $(`#${id}`);
+                notification.removeClass('show');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page de Connexion</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            background-image: url('light.jpg');
+            background-size: cover;
+            background-position: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .navbar {
+            background-color: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .navbar-brand, .nav-link {
+            color: white !important;
+        }
+
+        .card {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .card-title {
+            margin-bottom: 20px;
+        }
+
+        .btn-block {
+            margin-top: 15px;
+        }
+
+        .error-message {
+            color: red;
+            display: none;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            transform: translateY(-20px);
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .product-list, .cart-list, .order-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .product-list li, .cart-list li, .order-list li {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-list li:last-child, .cart-list li:last-child, .order-list li:last-child {
+            border-bottom: none;
+        }
+
+        .product-actions, .order-actions {
+            margin-right: 5px;
+        }
+
+        .product-details, .order-details {
+            flex-grow: 1;
+        }
+
+        .product-image, .order-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+
+        .product-name, .order-name {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .product-description, .order-description {
+            color: #555;
+        }
+
+        .product-price, .order-price {
+            font-size: 1.1em;
+            color: #007BFF;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Barre de menu -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <a class="navbar-brand" href="#">Mon Site</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="client.html">Accueil</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="panier.html">Panier</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="login.html">Connexion</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" id="ordersBtn">Commandes</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-5" id="adminPage">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <h3 class="text-center">Gestion des Produits</h3>
+                <form id="productForm">
+                    <div class="form-group">
+                        <label for="productName">Nom du produit</label>
+                        <input type="text" class="form-control" id="productName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productDescription">Description</label>
+                        <input type="text" class="form-control" id="productDescription" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productPrice">Prix</label>
+                        <input type="number" class="form-control" id="productPrice" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productImage">URL de l'image</label>
+                        <input type="text" class="form-control" id="productImage" required>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-block">Ajouter Produit</button>
+                </form>
+                <ul class="product-list mt-3" id="productList">
+                    <!-- Les produits seront ajoutés ici par JavaScript -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-5" id="ordersPage" style="display: none;">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <h3 class="text-center">Commandes des Clients</h3>
+                <ul class="order-list" id="orderList">
+                    <!-- Les commandes seront ajoutées ici par JavaScript -->
+                </ul>
+                <button class="btn btn-secondary btn-block mt-3" id="backToAdmin">Retour à l'Admin</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+            const orders = JSON.parse(localStorage.getItem('adminOrders')) || [];
+
+           
+            $('#productForm').submit(function(event) {
+                event.preventDefault();
+                const name = $('#productName').val();
+                const description = $('#productDescription').val();
+                const price = $('#productPrice').val();
+                const image = $('#productImage').val();
+
+                const product = { id: Date.now(), name, description, price, image };
+                products.push(product);
+                localStorage.setItem('products', JSON.stringify(products));
+                loadProducts();
+                resetForm();
+            });
+
+           
+            function loadProducts() {
+                $('#productList').empty();
+                products.forEach(product => {
+                    const productHtml = `
+                        <li>
+                            <img src="${product.image}" alt="${product.name}" class="product-image">
+                            <div class="product-details">
+                                <div class="product-name">${product.name}</div>
+                                <div class="product-description">${product.description}</div>
+                                <div class="product-price">${product.price} DH</div>
+                            </div>
+                            <div class="product-actions">
+                                <button class="btn btn-warning btn-sm" onclick="editProduct(${product.id})">Modifier</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteProduct(${product.id})">Supprimer</button>
+                            </div>
+                        </li>
+                    `;
+                    $('#productList').append(productHtml);
+                });
+            }
+
+            
+            function resetForm() {
+                $('#productForm')[0].reset();
+            }
+
+           
+            window.editProduct = function(id) {
+                const product = products.find(product => product.id === id);
+                $('#productName').val(product.name);
+                $('#productDescription').val(product.description);
+                $('#productPrice').val(product.price);
+                $('#productImage').val(product.image);
+                deleteProduct(id);
+            }
+
+           
+            window.deleteProduct = function(id) {
+                const index = products.findIndex(product => product.id === id);
+                if (index !== -1) {
+                    products.splice(index, 1);
+                    localStorage.setItem('products', JSON.stringify(products));
+                    loadProducts();
+                }
+            }
+
+            
+            function loadOrders() {
+                $('#orderList').empty();
+                orders.forEach(order => {
+                    const orderHtml = `
+                        <li>
+                            <div class="order-details">
+                                <div class="order-id">Commande ID: ${order.id}</div>
+                                <div class="order-items">${order.items.map(item => item.name).join(', ')}</div>
+                                <div class="order-total">Total: ${order.total} DH</div>
+                            </div>
+                        </li>
+                    `;
+                    $('#orderList').append(orderHtml);
+                });
+            }
+
+           
+            $('#ordersBtn').click(function() {
+                $('#adminPage').hide();
+                $('#ordersPage').show();
+                loadOrders();
+            });
+
+            $('#backToAdmin').click(function() {
+                $('#ordersPage').hide();
+                $('#adminPage').show();
+            });
+
+            loadProducts(); 
+        });
+    </script>
+</body>
+</html>
